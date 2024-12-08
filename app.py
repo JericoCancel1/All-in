@@ -40,6 +40,39 @@ custom_objects = {"Addons>TripletSemiHardLoss": tfa.losses.TripletSemiHardLoss}
 target_size = (28, 28)
 
 
+def generate_presigned_url(bucket_name, object_key, expiration=3600):
+    s3 = boto3.client('s3')
+    try:
+        url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={'Bucket': bucket_name, 'Key': object_key},
+            ExpiresIn=expiration
+        )
+        print(f"Generated URL: {url}")
+        return url
+    except Exception as e:
+        print(f"Error generating pre-signed URL: {e}")
+        return None
+
+
+def download_image_from_url(url, local_path):
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+    try:
+        # Send an HTTP GET request to fetch the image
+        response = requests.get(url, stream=True)
+        response.raise_for_status()  # Raise an error for HTTP issues
+
+        # Write the content to a local file
+        with open(local_path, "wb") as file:
+            for chunk in response.iter_content(chunk_size=8192):
+                file.write(chunk)
+
+        print(f"Image downloaded successfully to {local_path}")
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to download image: {e}")
+
 def download_from_s3(s3_key, local_path):
     """Download a file from S3."""
     try:
@@ -138,10 +171,20 @@ def upload():
 
 def process_image(img):
     # Example processing: Invert colors
-    download_from_s3("anchor/068.jpeg","tmp/068.jpeg")
-    processed_image =Image.open("tmp/068.jpeg")
-    processed_img = img.convert("RGB")  # Ensure image is in RGB mode
+    # download_from_s3("anchor/068.jpeg","tmp/068.jpeg")
+    # processed_image =Image.open("tmp/068.jpeg")
+    # processed_img = img.convert("RGB")  # Ensure image is in RGB mode
     # inverted_img = Image.eval(processed_img, lambda x: 255 - x)
+
+    bucket_name = "capstone-bucket-heroku"
+    object_key = "anchor/068.jpeg"
+
+    # Generate the pre-signed URL
+    url = generate_presigned_url(bucket_name, object_key)
+    if url:
+        download_image_from_url(url, "tmp/068.jpeg")
+    processed_image =Image.open("tmp/068.jpeg")
+    processed_img = img.convert("RGB")
     return processed_image
 
 if __name__ == "__main__":
