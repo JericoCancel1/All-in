@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Display</title>
+</head>
+<body>
+    <h1>Upload and View Processed Image</h1>
+    <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" required>
+        <button type="submit">Upload and Process</button>
+    </form>
+
+    {% if processed_image %}
+    <h2>Processed Image:</h2>
+    <img src="{{ processed_image }}" alt="Processed Image">
+    {% endif %}
+</body>
+</html>
