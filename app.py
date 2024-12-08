@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, requests, jsonify
 from flask_cors import CORS
 import numpy as np
 import os
@@ -183,9 +183,11 @@ def process_image(img):
     url = generate_presigned_url(bucket_name, object_key)
     if url:
         download_image_from_url(url, "tmp/068.jpeg")
-    processed_image =Image.open("tmp/068.jpeg")
-    processed_img = img.convert("RGB")
-    return processed_image
+        processed_image =Image.open("tmp/068.jpeg")
+        processed_img = img.convert("RGB")
+        return processed_image
+    else:
+        raise Exception("Failed to generate pre-signed URL")
 
 if __name__ == "__main__":
     app.run(debug=True)
