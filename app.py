@@ -155,10 +155,26 @@ def upload():
 
     if file:
         # Open the uploaded image in memory
-        img = Image.open(file.stream)
+        logger.info("Loading model and embeddings...")
+        embedding_model, dataset_embeddings, filenames = load_model_and_embeddings()
+        file_stream = BytesIO(file.read())
+        preprocessed_image = preprocess_image(image_stream, target_size)
+
+        # Compute the embedding for the uploaded image
+        logger.info("Computing embedding for uploaded image...")
+        target_embedding = embedding_model.predict(preprocessed_image)
+
+        # Find closest embeddings
+        logger.info("Finding closest embeddings...")
+        closest_matches = find_closest_embedding(target_embedding, dataset_embeddings, filenames)
+        results = [{"filename": fname, "distance": float(distance)} for fname, distance in closest_matches]
+
+        logger.info(f"Results JSON: {results}")
+
+        first_filename = results[0]["filename"] if results else None
 
         # Process the image
-        processed_img = process_image(img)
+        processed_img = process_image(first_filename)
 
         # Convert the processed image to a base64 string
         img_io = BytesIO()
@@ -170,7 +186,7 @@ def upload():
         # Pass the image data URL to the template
         return render_template('index.html', processed_image=img_data_url)
 
-def process_image(img):
+def process_image(name):
     # Example processing: Invert colors
     # download_from_s3("anchor/068.jpeg","tmp/068.jpeg")
     # processed_image =Image.open("tmp/068.jpeg")
@@ -178,13 +194,13 @@ def process_image(img):
     # inverted_img = Image.eval(processed_img, lambda x: 255 - x)
 
     bucket_name = "capstone-bucket-heroku"
-    object_key = "anchor/068.jpeg"
+    object_key = "anchor/" +name
 
     # Generate the pre-signed URL
     url = generate_presigned_url(bucket_name, object_key)
     if url:
-        download_image_from_url(url, "tmp/068.jpeg")
-        processed_image =Image.open("tmp/068.jpeg")
+        download_image_from_url(url, "tmp/" + name)
+        processed_image =Image.open("tmp/" + name)
         processed_img = img.convert("RGB")
         return processed_image
     else:
