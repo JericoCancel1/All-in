@@ -1,4 +1,4 @@
-from flask import Flask, render_template, requests, jsonify
+from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 import numpy as np
 import os
@@ -12,6 +12,7 @@ from tensorflow.keras.models import load_model
 from PIL import Image
 from io import BytesIO
 import base64
+import requests
 
 app = Flask(__name__)
 CORS(app)
