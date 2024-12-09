@@ -158,7 +158,7 @@ def upload():
         logger.info("Loading model and embeddings...")
         embedding_model, dataset_embeddings, filenames = load_model_and_embeddings()
         file_stream = BytesIO(file.read())
-        preprocessed_image = preprocess_image(image_stream, target_size)
+        preprocessed_image = preprocess_image(file_stream, target_size)
 
         # Compute the embedding for the uploaded image
         logger.info("Computing embedding for uploaded image...")
