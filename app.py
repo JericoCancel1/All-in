@@ -201,7 +201,7 @@ def process_image(name):
     if url:
         download_image_from_url(url, "tmp/" + name)
         processed_image =Image.open("tmp/" + name)
-        processed_img = img.convert("RGB")
+        processed_img = processed_image.convert("RGB")
         return processed_image
     else:
         raise Exception("Failed to generate pre-signed URL")
