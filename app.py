@@ -42,18 +42,18 @@ target_size = (28, 28)
 
 
 def generate_presigned_url(bucket_name, object_key, expiration=3600):
-    s3 = boto3.client('s3')
-    try:
-        url = s3.generate_presigned_url(
-            ClientMethod='get_object',
-            Params={'Bucket': bucket_name, 'Key': object_key},
-            ExpiresIn=expiration
-        )
-        print(f"Generated URL: {url}")
-        return url
-    except Exception as e:
-        print(f"Error generating pre-signed URL: {e}")
-        return None
+	s3 = boto3.client('s3', region_name='us-east-2') 
+	try:
+		url = s3.generate_presigned_url( 
+			ClientMethod='get_object', 
+			Params={'Bucket': bucket_name, 'Key': object_key}, 
+			ExpiresIn=expiration 
+		) 
+		print(f"Generated URL: {url}") 
+		return url 
+	except Exception as e: 
+		logging.error(f"Error generating pre-signed URL: {str(e)}") 
+		return None
 
 
 def download_image_from_url(url, local_path):
